@@ -32,7 +32,7 @@ class db:
 
         query3_estudiantes = '''
                     CREATE TABLE IF NOT EXISTS estudiantes(
-                    id INTEGER PRIMARY KEY,
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                     nom VARCHAR(40) NOT NULL,
                     correo VARCHAR(40),
                     carrera_id INTEGER,
@@ -59,7 +59,7 @@ class db:
 
         query5_profesores = '''
                         CREATE TABLE IF NOT EXISTS profesores(
-                        id INTEGER PRIMARY KEY,
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
                         nom TEXT,
                         profesion TEXT
                         );
@@ -70,10 +70,30 @@ class db:
 
     '''C'''
     def insertar_datos_tabla(self,tabla_nombre:str,datos:tuple):
+         
+         '''​"
+         Se consultan los metadatos de la tabla para automatizar la inserción 
+         y permitir que el sistema sea escalable a cualquier tabla nueva sin modificar el código.
+         '''
+         cursor = self.conn.cursor()
+         
+         cursor.execute(f'''PRAGMA table_info({tabla_nombre})''')
+         tabla_info = cursor.fetchall()
+         ##extrae todos los nombres de las columnas menos el id(porque se incrementa solo)
+         columnas_nombre = [i[1] for i in tabla_info if i[5] == 0]
+
+         columnas_formateadas = ",".join(columnas_nombre)
+         placeholders = ','.join(["?" for i in range(len(columnas_nombre))])
+
+         query = f'''INSERT INTO {tabla_nombre}({columnas_formateadas}) VALUES({placeholders})'''
+         cursor.execute(query,datos)
+         self.conn.commit()
+
+    def obtener_datos_tabla(self,tabla_nombre,id):
         cursor = self.conn.cursor()
-        cursor.execute(f'''PRAGMA tabla_info({tabla_nombre})''')
-        columnas = cursor.fetchall()
-        
+        cursor.execute(f'''SELECT *FROM {tabla_nombre} WHERE id=?''',(id,))
+        datos = cursor.fetchall()
+        return datos
 
 
 
@@ -86,6 +106,6 @@ class db:
         
         
 
-#TODO: completar crud de profesores (para mi yo del futuro)
+#TODO: completar 
 
         
