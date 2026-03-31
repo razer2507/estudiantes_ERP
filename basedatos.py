@@ -24,6 +24,7 @@ class db:
                 CREATE TABLE IF NOT EXISTS materias(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 id_profesor INTEGER,
+                nom VARCHAR(30),
                 FOREIGN KEY(id_profesor) REFERENCES profesores(id)
                 );
                 '''
@@ -44,7 +45,7 @@ class db:
 
         query4_notas = '''
                     CREATE TABLE IF NOT EXISTS notas(
-                    id_nota INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                     id_materia INTEGER,
                     id_estudiante INTEGER,
                     valor NUMERIC(10,2) NOT NULL,
@@ -66,31 +67,25 @@ class db:
 
         cursor.execute(query5_profesores)
 
-    def insertar_datos_estudiantes(self,datos:tuple):
-        cursor = self.conn.cursor()
-        query = '''INSERT INTO estudiantes(id,nom,correo,carrera_id,telefono) VALUES(?,?,?,?,?)'''
-        cursor.execute(query,datos)
-        self.conn.commit()
 
-    def ver_datos_estudiante(self,id:int):
+    '''C'''
+    def insertar_datos_tabla(self,tabla_nombre:str,datos:tuple):
         cursor = self.conn.cursor()
-        query = '''SELECT *FROM estudiantes WHERE id=?'''
-        cursor.execute(query,(id,))
-        resultado = cursor.fetchone()
-        return resultado
-
-    def eliminar_datos_estudiante(self,id):
-        cursor = self.conn.cursor()
-        query = '''DELETE FROM estudiantes WHERE id=?'''
-        cursor.execute(query,(id,))
-        self.conn.commit()
-
-    def modificar_datos_estudiante(self,id,dato_cambiar,dato_nuevo):
-        cursor = self.conn.cursor()
-        query = f'''UPDATE estudiantes SET {dato_cambiar}=? WHERE id=?'''
-        cursor.execute(query,(dato_nuevo,id))
-        self.conn.commit()
+        cursor.execute(f'''PRAGMA tabla_info({tabla_nombre})''')
+        columnas = cursor.fetchall()
         
+
+
+
+
     
+    
+
+
+
+        
+        
+
+#TODO: completar crud de profesores (para mi yo del futuro)
 
         
