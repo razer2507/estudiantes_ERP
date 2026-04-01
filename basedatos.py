@@ -1,8 +1,8 @@
 import sqlite3
-
+import os
 class db:
     def __init__(self,directo_archivo_db='datos/academia.db'):
-        self.directorio_archivo_db = directo_archivo_db
+
         self.conn = sqlite3.connect(directo_archivo_db)
         self.iniciar_tablas()
 
@@ -70,9 +70,7 @@ class db:
 
     '''C'''
     def insertar_datos_tabla(self,tabla_nombre:str,datos:tuple):
-         
          '''​"
-
          Se consultan los metadatos de la tabla para automatizar la inserción 
          y permitir que el sistema sea escalable a cualquier tabla nueva sin modificar el código.
          '''
@@ -89,25 +87,23 @@ class db:
          query = f'''INSERT INTO {tabla_nombre}({columnas_formateadas}) VALUES({placeholders})'''
          cursor.execute(query,datos)
          self.conn.commit()
-
+    '''R'''
     def obtener_datos_tabla(self,tabla_nombre,id):
         cursor = self.conn.cursor()
         cursor.execute(f'''SELECT *FROM {tabla_nombre} WHERE id=?''',(id,))
-        datos = cursor.fetchall()
+        datos = cursor.fetchone()
         return datos
-    
-    def eliminar_datos_tabla(self,tabla_nombre,id):
-        cursor = self.conn.cursor()
-        cursor.execute(f'''DELETE FROM {tabla_nombre} WHERE id=?''',(id,))
-        self.conn.commit()
-
-
+    '''U'''
     def modificar_datos_tabla(self,tabla_nombre,dato_modificar,dato_nuevo,id):
         cursor = self.conn.cursor()
         query = f'UPDATE {tabla_nombre} SET {dato_modificar}=? WHERE id=?'
         cursor.execute(query,(dato_nuevo,id))
-    
-
+        self.conn.commit()
+    '''D''' 
+    def eliminar_datos_tabla(self,tabla_nombre,id):
+        cursor = self.conn.cursor()
+        cursor.execute(f'''DELETE FROM {tabla_nombre} WHERE id=?''',(id,))
+        self.conn.commit()
 
 #TODO: completar capa de db dinamica y evaluar probabilidad de integrar a branch main
 
