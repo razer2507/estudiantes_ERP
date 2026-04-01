@@ -11,61 +11,70 @@ class db:
         cursor = self.conn.cursor()
         cursor.execute('''PRAGMA foreign_keys = ON;''')
 
-
         query1_carreras= '''
                     CREATE TABLE IF NOT EXISTS carreras(
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    nom VARCHAR(30)
+                    nom TEXT
                     );
                 '''
         cursor.execute(query1_carreras)
 
-        query2_materias= '''
-                CREATE TABLE IF NOT EXISTS materias(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                id_profesor INTEGER,
-                nom VARCHAR(30),
-                FOREIGN KEY(id_profesor) REFERENCES profesores(id)
-                );
-                '''
-        cursor.execute(query2_materias)
-
-        query3_estudiantes = '''
-                    CREATE TABLE IF NOT EXISTS estudiantes(
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    nom VARCHAR(40) NOT NULL,
-                    correo VARCHAR(40),
-                    carrera_id INTEGER,
-                    telefono VARCHAR(13),
-                    FOREIGN KEY(carrera_id) REFERENCES carreras(id)
-                    );
-                '''
-        cursor.execute(query3_estudiantes)
-
-
-        query4_notas = '''
-                    CREATE TABLE IF NOT EXISTS notas(
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    id_materia INTEGER,
-                    id_estudiante INTEGER,
-                    valor NUMERIC(10,2) NOT NULL,
-                    fecha TEXT,
-                    FOREIGN KEY(id_materia) REFERENCES materia(id),
-                    FOREIGN KEY(id_estudiante) REFERENCES estudiantes(id)
-                    );
-                '''
-        cursor.execute(query4_notas)
-
-
-        query5_profesores = '''
+        query2_profesores = '''
                         CREATE TABLE IF NOT EXISTS profesores(
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         nom TEXT,
                         profesion TEXT
                         );
                         '''
+        cursor.execute(query2_profesores)
+    
+        query3_estudiantes = '''
+                    CREATE TABLE IF NOT EXISTS estudiantes(
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    nom TEXT NOT NULL,
+                    correo TEXT,
+                    carrera_id INTEGER,
+                    telefono TEXT,
+                    FOREIGN KEY(carrera_id) REFERENCES carreras(id)
+                    );
+                '''
+        cursor.execute(query3_estudiantes)
 
-        cursor.execute(query5_profesores)
+        query4_materias= '''
+                CREATE TABLE IF NOT EXISTS materias(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id_profesor INTEGER,
+                nom TEXT,
+                FOREIGN KEY(id_profesor) REFERENCES profesores(id)
+                );
+                '''
+        cursor.execute(query4_materias)
+
+        query5_notas = '''
+                    CREATE TABLE IF NOT EXISTS notas(
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id_materia INTEGER,
+                    id_estudiante INTEGER,
+                    valor NUMERIC(10,2) NOT NULL,
+                    fecha TEXT,
+                    FOREIGN KEY(id_materia) REFERENCES materias(id),
+                    FOREIGN KEY(id_estudiante) REFERENCES estudiantes(id)
+                    );
+                '''
+        cursor.execute(query5_notas)
+
+
+      
+    def consultar_info_tabla(self,tabla_nombre):
+        cursor = self.conn.cursor()
+        cursor.execute(f'''PRAGMA table_info({tabla_nombre})''')
+        return cursor.fetchall()
+    
+    def buscar_estudiante_correo(self,correo):
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT *FROM estudiantes WHERE correo=?",(correo,))
+        datos = cursor.fetchone()
+        return datos
 
 
     '''C'''
@@ -105,5 +114,4 @@ class db:
         cursor.execute(f'''DELETE FROM {tabla_nombre} WHERE id=?''',(id,))
         self.conn.commit()
 
-#TODO: completar capa de db dinamica y evaluar probabilidad de integrar a branch main
 
