@@ -5,21 +5,20 @@ def test_probar_insercion_auto():
     tabla = 'estudiantes'
     base = db(':memory:')
     cursor = base.conn.cursor()
+    
+    tabla_nombre = 'carreras'
+    datos = ('Sistemas',)
+    dato_modificar = 'nom'
+    dato_nuevo = "Ingenieria de sistemas"
+    id = 1
+    base.insertar_datos_tabla(tabla_nombre,datos)
+    cursor.execute("SELECT *FROM carreras")
+    print('\nresultados:',cursor.fetchall())
 
+    base.modificar_datos_tabla(tabla_nombre,dato_modificar,dato_nuevo,id)
 
-
-    cursor.execute(f'''PRAGMA table_info({tabla})''')
-    tabla_info = cursor.fetchall()
-    print(tabla_info)
-    nombre_columnas = [i[1] for i in tabla_info]
-    print(nombre_columnas)
-
-    columnas_formateadas = ",".join(nombre_columnas)
-    placeholders = ",".join(['?' for i in range(len(nombre_columnas))])
-    print(placeholders)
-  
-
-
-   
-    assert len(tabla_info)>0
+    cursor.execute("SELECT *FROM carreras WHERE id=?",(id,))
+    resultados = cursor.fetchone()
+    print(f'resultados: {resultados}')
+    assert resultados[1] == dato_nuevo
     
