@@ -14,7 +14,7 @@ class logica():
                 return False
             return True
     
-    def validar_cedula(self,cedula):
+    def validar_cedula(self,cedula:str):
              if len(cedula) <3 or len(cedula) >9:
                  return False
              return True
@@ -55,10 +55,10 @@ class logica():
         if all(verificacion.values()):
             datos = (cedula, nom, correo, telefono, curso, estatus)
             self.base_datos.insertar_datos_tabla('estudiantes',datos)
-            return True
+            return {dato:valor for dato,valor in verificacion.items()}
         else:
-            diccionario_invalido = {dato:'invalido' for dato,validacion in verificacion.items() if validacion == False}
-            return diccionario_invalido
+            return {dato:valor for dato,valor in verificacion.items() if valor == False}
+            
         
 
     def obtener_datos_alumno(self,cedula):
