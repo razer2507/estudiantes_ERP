@@ -9,74 +9,24 @@ class db:
 
     def iniciar_tablas(self):
         cursor = self.conn.cursor()
-        cursor.execute('''PRAGMA foreign_keys = ON;''')
-
-        query1_carreras= '''
-                    CREATE TABLE IF NOT EXISTS carreras(
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    nom TEXT
-                    );
-                '''
-        cursor.execute(query1_carreras)
-
-        query2_profesores = '''
-                        CREATE TABLE IF NOT EXISTS profesores(
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        nom TEXT,
-                        profesion TEXT
-                        );
-                        '''
-        cursor.execute(query2_profesores)
     
-        query3_estudiantes = '''
+        query1_estudiantes = '''
                     CREATE TABLE IF NOT EXISTS estudiantes(
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id INTEGER PRIMARY KEY,
                     nom TEXT NOT NULL,
                     correo TEXT,
-                    carrera_id INTEGER,
                     telefono TEXT,
-                    FOREIGN KEY(carrera_id) REFERENCES carreras(id)
+                    curso_inscrito TEXT,
+                    estatus_pago TEXT
                     );
                 '''
-        cursor.execute(query3_estudiantes)
+        cursor.execute(query1_estudiantes)
 
-        query4_materias= '''
-                CREATE TABLE IF NOT EXISTS materias(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                id_profesor INTEGER,
-                nom TEXT,
-                FOREIGN KEY(id_profesor) REFERENCES profesores(id)
-                );
-                '''
-        cursor.execute(query4_materias)
-
-        query5_notas = '''
-                    CREATE TABLE IF NOT EXISTS notas(
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    id_materia INTEGER,
-                    id_estudiante INTEGER,
-                    valor NUMERIC(10,2) NOT NULL,
-                    fecha TEXT,
-                    FOREIGN KEY(id_materia) REFERENCES materias(id),
-                    FOREIGN KEY(id_estudiante) REFERENCES estudiantes(id)
-                    );
-                '''
-        cursor.execute(query5_notas)
-
-
-      
-    def consultar_info_tabla(self,tabla_nombre):
+    def consultar_metadatos_tabla(self,tabla_nombre):
         cursor = self.conn.cursor()
         cursor.execute(f'''PRAGMA table_info({tabla_nombre})''')
-        return cursor.fetchall()
-    
-    def buscar_estudiante_correo(self,correo):
-        cursor = self.conn.cursor()
-        cursor.execute("SELECT *FROM estudiantes WHERE correo=?",(correo,))
-        datos = cursor.fetchone()
-        return datos
-
-
+        tabla_info = cursor.fetchall()
+        return [i[1] for i in tabla_info]
     '''C'''
     def insertar_datos_tabla(self,tabla_nombre:str,datos:tuple):
          '''​"
@@ -84,12 +34,8 @@ class db:
          y permitir que el sistema sea escalable a cualquier tabla nueva sin modificar el código.
          '''
          cursor = self.conn.cursor()
-         
-         cursor.execute(f'''PRAGMA table_info({tabla_nombre})''')
-         tabla_info = cursor.fetchall()
-         ##extrae todos los nombres de las columnas menos el id(porque se incrementa solo)
-         columnas_nombre = [i[1] for i in tabla_info if i[5] == 0]
-
+       
+         columnas_nombre = self.consultar_metadatos_tabla(tabla_nombre)     
          columnas_formateadas = ",".join(columnas_nombre)
          placeholders = ','.join(["?" for i in range(len(columnas_nombre))])
 
@@ -98,18 +44,26 @@ class db:
          self.conn.commit()
     '''R'''
     def obtener_datos_tabla(self,tabla_nombre,id):
+        print(f'{tabla_nombre}\n{id}')
         cursor = self.conn.cursor()
         cursor.execute(f'''SELECT *FROM {tabla_nombre} WHERE id=?''',(id,))
         datos = cursor.fetchone()
-        return datos
+        nom_columnas = self.consultar_metadatos_tabla(tabla_nombre)
+        if not datos:
+            return None
+        return dict(zip(nom_columnas,datos))
+
+             
     '''U'''
     def modificar_datos_tabla(self,tabla_nombre,dato_modificar,dato_nuevo,id):
+        print(f'{tabla_nombre}\n{dato_modificar}\n{dato_nuevo}\n{id}')
         cursor = self.conn.cursor()
         query = f'UPDATE {tabla_nombre} SET {dato_modificar}=? WHERE id=?'
         cursor.execute(query,(dato_nuevo,id))
         self.conn.commit()
     '''D''' 
     def eliminar_datos_tabla(self,tabla_nombre,id):
+        print(f'{tabla_nombre}\n{id}')
         cursor = self.conn.cursor()
         cursor.execute(f'''DELETE FROM {tabla_nombre} WHERE id=?''',(id,))
         self.conn.commit()

@@ -21,51 +21,22 @@ def test_probar_insercion_auto():
    
 
 
-
     DATOS_SEMILLA = {
-    'carreras': [
-        ('Sistemas',), 
-        ('Derecho',),
-        ('Medicina',)
-    ],
-    'profesores': [
-        ('Dr. Arreaza', 'Ingeniero de Software'), 
-        ('Dra. Mendoza', 'Abogada Penalista'),
-        ('Ing. Rodriguez', 'Analista de Datos')
-    ],
-    'estudiantes': [
-        # id_estudiante (auto), nombre, correo, carrera_id, telefono
-        ('Luis Paez', 'luis@gmail.com', 1, '5550101'),
-        ('Maria Sosa', 'maria@gmail.com', 2, '5550202'),
-        ('Jose Ferrer', 'jose@gmail.com', 1, '5550303'),
-        ('Ana Ruiz', 'ana@gmail.com', 3, '5550404')
-    ],
-    'materias': [
-        # id_materia (auto), id_profesor, nombre
-        (1, 'Programación I'),
-        (1, 'Bases de Datos'),
-        (2, 'Derecho Romano'),
-        (3, 'Estadística')
-    ],
-    'notas': [
-        # id_nota (auto), id_materia, id_estudiante, valor, fecha
-        (1, 1, 19.05, '2026-03-15'),
-        (1, 3, 15.50, '2026-03-15'),
-        (2, 1, 18.00, '2026-03-20'),
-        (3, 2, 12.00, '2026-03-22')
-    ]
-}
+        'estudiantes': [
+            # id (cedula), nombre, correo, telefono, curso_inscrito, estatus_pago
+            (31143840, 'Luis Paez', 'luis@gmail.com', '5550101', 'Python Pro', 'Pagado'),
+            (32143840, 'Maria Sosa', 'maria@gmail.com', '5550202', 'Data Science', 'Pendiente'),
+            (33143840, 'Jose Ferrer', 'jose@gmail.com', '5550303', 'Python Pro', 'Pagado')
+        ]
+    }
+
+    for tabla, filas in DATOS_SEMILLA.items():
+        for fila in filas:
+            base.insertar_datos_tabla(tabla, fila)
     
-    for tabla,lista_registros in DATOS_SEMILLA.items():
-        for i in lista_registros:
-            base.insertar_datos_tabla(tabla,i)
-
-    datos = ('Paul Ramirez','ana@gmail.com',1,'04127279138')
-    nom,correo,id_carrera,telefono = datos
-    validacion = logic.registrar_alumno(nom,correo,id_carrera,telefono)
-    assert 
-
-
-
-
-
+    # Verificación rápida
+    alumno = base.obtener_datos_tabla('estudiantes', 31143840)
+    for key,value in alumno.items(): # pyright: ignore[reportOptionalMemberAccess]
+        print(f'{key}:{value}')
+    print(alumno)
+    assert alumno is not None
