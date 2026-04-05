@@ -27,6 +27,13 @@ class db:
         cursor.execute(f'''PRAGMA table_info({tabla_nombre})''')
         tabla_info = cursor.fetchall()
         return [i[1] for i in tabla_info]
+    
+    def obtener_datos_totales_tabla(self,tabla_nombre):
+        cursor = self.conn.cursor()
+        cursor.execute(f'''SELECT *FROM {tabla_nombre}''')
+        datos = cursor.fetchall()
+        return datos
+
     '''C'''
     def insertar_datos_tabla(self,tabla_nombre:str,datos:tuple):
          '''​"

@@ -5,7 +5,11 @@ class logica():
         self.base_datos = base_datos
 
    
- 
+    def obtener_datos_columnas(self):
+         return self.base_datos.consultar_metadatos_tabla('estudiantes')
+    
+    def obtener_datos_totales_tabla(self):
+         return self.base_datos.obtener_datos_totales_tabla('estudiantes')
 
     def validar_nombre(self,nom:str):
             if len(nom)>35:
@@ -17,6 +21,8 @@ class logica():
     def validar_cedula(self,cedula:str):
              if len(cedula) <3 or len(cedula) >9:
                  return False
+             if not cedula.isdigit():
+                  return False
              return True
      
     def validar_correo(self,correo:str):
@@ -25,6 +31,7 @@ class logica():
             return True
     
     def validar_curso(self,curso):
+            
         # Validación simple: que no esté vacío y no sea demasiado largo
             return len(curso) > 2 and len(curso) < 50
      
@@ -41,15 +48,15 @@ class logica():
                 return False
             return True
          
-    def registrar_alumno(self,cedula,nom,correo,curso,telefono,estatus='pendiente'):
+    def registrar_alumno(self,cedula,nom,correo,telefono,curso,estatus='pendiente'):
     
         verificacion = {
         'duplicado': self.verificar_alumno_duplicado(cedula),
         'cedula': self.validar_cedula(cedula),
         'nombre': self.validar_nombre(nom),
         'correo': self.validar_correo(correo),
-        'curso': self.validar_curso(curso),
-        'telefono': self.validar_telefono(telefono)
+        'telefono': self.validar_telefono(telefono),
+        'curso': self.validar_curso(curso)
     }
         
         if all(verificacion.values()):
@@ -88,6 +95,11 @@ class logica():
         def modificar_telefono(telefono):
              if self.validar_telefono(telefono):
                   self.base_datos.modificar_datos_tabla('estudiantes','telefono',telefono,cedula)
+                  return True
+             else:
+                  return False
+             
+             
         def modificar_curso(curso):
              if self.validar_curso(curso):
                   self.base_datos.modificar_datos_tabla('estudiantes','curso_inscrito',curso,cedula)
@@ -112,29 +124,35 @@ class logica():
         if datos:
              match dato_ob:
                   case 'nom':
-                       modificar_nombre(dato_nuevo)
+                       return modificar_nombre(dato_nuevo)
+                       
                       
                   case 'correo':
-                       modificar_correo(dato_nuevo)
+                       return modificar_correo(dato_nuevo)
+                       
                      
                   case 'telefono':
-                       modificar_correo(dato_nuevo)
+                       return modificar_telefono(dato_nuevo)
+                       
                        
                   case 'curso_inscrito':
-                       modificar_curso(dato_nuevo)
+                       return modificar_curso(dato_nuevo)
                        
                   case 'telefono':
-                       modificar_telefono(dato_nuevo)
+                       return modificar_telefono(dato_nuevo)
                     
                   case 'estatus_pago':
-                       modificar_estatus()
-                       
+                       return modificar_estatus()
+    
     def eliminar_alumno(self,cedula):
-        datos = self.base_datos.obtener_datos_tabla('estudiantes',cedula)
-        if datos:
-             self.base_datos.eliminar_datos_tabla('estudiantes',cedula)
-             return True
-        else:
+        try:
+            datos = self.base_datos.obtener_datos_tabla('estudiantes',cedula)
+            if datos:
+                self.base_datos.eliminar_datos_tabla('estudiantes',cedula)
+                return True
+            else:
+                return False
+        except TypeError:
              return False
              
              
